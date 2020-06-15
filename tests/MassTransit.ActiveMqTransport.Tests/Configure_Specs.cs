@@ -364,9 +364,9 @@ namespace MassTransit.ActiveMqTransport.Tests
             });
         }
 
-        const string TestBrokerHost = "b-15a8b984-a883-4143-a4e7-8f97bc5db37d-1.mq.us-east-2.amazonaws.com";
-        const string TestUsername = "masstransit-build";
-        const string TestPassword = "build-Br0k3r";
+        const string TestBrokerHost = "b-265bcc9b-dd45-4355-bfdc-098afa1af2fa-1.mq.ap-southeast-1.amazonaws.com";
+        const string TestUsername = "mqadmin";
+        const string TestPassword = "Maado7jRx12@";
 
         readonly string[] FailoverHosts = { };
     }
