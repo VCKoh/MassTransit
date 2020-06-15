@@ -26,7 +26,7 @@
         {
             _busConfiguration = busConfiguration;
 
-            _hostSettings = new ConfigurationHostSettings(new Uri("activemq://localhost"));
+            _hostSettings = new ConfigurationHostSettings(new Uri("amqp://localhost"));
             _hostTopology = new ActiveMqHostTopology(this, topologyConfiguration);
 
             ConnectionContextSupervisor = new ConnectionContextSupervisor(this, topologyConfiguration);
@@ -45,7 +45,8 @@
                 {
                     x.Handle<ActiveMqTransportException>();
 
-                    x.Exponential(1000, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
+                    // x.Exponential(1000, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
+                    x.Exponential(2, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
                 });
             }
         }

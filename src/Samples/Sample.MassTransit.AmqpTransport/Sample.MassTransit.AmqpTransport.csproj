@@ -9,7 +9,7 @@
     <!--<PackageReference Include="Apache.NMS.AMQP" Version="1.8.1" />-->
     <ProjectReference Include="..\..\NMS.AMQP\Apache-NMS-AMQP.csproj" />
     <ProjectReference Include="..\..\MassTransit\MassTransit.csproj"/>
-    <ProjectReference Include="..\..\MassTransit.AmqpTransport\MassTransit.AmqpTransport.csproj"/>
+    <ProjectReference Include="..\..\Transports\MassTransit.AmqpTransport\MassTransit.AmqpTransport.csproj"/>
   </ItemGroup>
   
 </Project>

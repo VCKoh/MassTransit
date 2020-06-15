@@ -99,7 +99,8 @@ namespace MassTransit.AmqpTransport.Pipeline
 
         async Task<ActiveMqConsumer> CreateConsumer(SessionContext context, string entityName, string selector, ushort prefetchCount, ChannelExecutor executor)
         {
-            var queueName = $"{entityName}?consumer.prefetchSize={prefetchCount}";
+            // var queueName = $"{entityName}?consumer.prefetchSize={prefetchCount}";
+            var queueName = $"{entityName}";
 
             var queue = await context.GetQueue(queueName).ConfigureAwait(false);
 

@@ -17,7 +17,7 @@ namespace MassTransit.AmqpTransport.Configurators
             var hostAddress = new ActiveMqHostAddress(address);
 
             Host = hostAddress.Host;
-            Port = hostAddress.Port ?? 61616;
+            Port = hostAddress.Port ?? 5672;
 
             Username = "";
             Password = "";
@@ -31,12 +31,13 @@ namespace MassTransit.AmqpTransport.Configurators
                     Password = parts[1];
             }
 
-            TransportOptions = new Dictionary<string, string>
-            {
-                {"wireFormat.tightEncodingEnabled", "true"},
-                {"nms.AsyncSend", "true"}
-            };
-
+            // TransportOptions = new Dictionary<string, string>
+            // {
+            //     {"wireFormat.tightEncodingEnabled", "true"},
+            //     {"nms.AsyncSend", "true"}
+            // };
+			TransportOptions = new Dictionary<string, string>();
+			
             _hostAddress = new Lazy<Uri>(FormatHostAddress);
             _brokerAddress = new Lazy<Uri>(FormatBrokerAddress);
         }
@@ -55,7 +56,12 @@ namespace MassTransit.AmqpTransport.Configurators
 
         public IConnection CreateConnection()
         {
-            var factory = new NMSConnectionFactory(BrokerAddress);
+            // var factory = new NMSConnectionFactory(BrokerAddress);
+            // return factory.CreateConnection(Username, Password);
+			
+            var factory = new Apache.NMS.AMQP.ConnectionFactory(BrokerAddress);
+            // var factory = new Apache.NMS.AMQP.ConnectionFactory($"{BrokerAddress.Scheme}://{BrokerAddress.Host}:{BrokerAddress.Port}");
+
             return factory.CreateConnection(Username, Password);
         }
 
@@ -66,10 +72,10 @@ namespace MassTransit.AmqpTransport.Configurators
 
         Uri FormatBrokerAddress()
         {
-            var scheme = UseSsl ? "ssl" : "tcp";
+            var scheme = UseSsl ? "amqps" : "amqp";
             var queryPart = GetQueryString();
 
-            // create broker URI: http://activemq.apache.org/nms/activemq-uri-configuration.html
+            // create broker URI: https://activemq.apache.org/components/nms/providers/amqp/uri-configuration
             if (FailoverHosts?.Length > 0)
             {
                 var failoverPart = string.Join(",", FailoverHosts
@@ -81,10 +87,12 @@ namespace MassTransit.AmqpTransport.Configurators
                         }.Uri.ToString()
                     ));
 
-                return new Uri($"activemq:failover:({failoverPart}){queryPart}");
+
+                return new Uri($"failover:({failoverPart}){queryPart}");
             }
 
-            var uri = new Uri($"activemq:{scheme}://{Host}:{Port}{queryPart}");
+
+            var uri = new Uri($"{scheme}://{Host}:{Port}{queryPart}");
             return uri;
         }
 
@@ -102,7 +110,7 @@ namespace MassTransit.AmqpTransport.Configurators
         {
             return new UriBuilder
             {
-                Scheme = UseSsl ? "ssl" : "tcp",
+                Scheme = UseSsl ? "amqps" : "amqp",
                 Host = Host,
                 Port = Port
             }.Uri.ToString();

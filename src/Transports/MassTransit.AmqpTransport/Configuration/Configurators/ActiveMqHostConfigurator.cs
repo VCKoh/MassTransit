@@ -13,7 +13,8 @@ namespace MassTransit.AmqpTransport.Configurators
         {
             _settings = new ConfigurationHostSettings(address);
 
-            if (_settings.Port == 61617 || _settings.Host.EndsWith("amazonaws.com", StringComparison.OrdinalIgnoreCase))
+            if (_settings.Port == 5671
+                || _settings.Host.EndsWith("amazonaws.com", StringComparison.OrdinalIgnoreCase))
                 UseSsl();
         }
 
@@ -32,8 +33,8 @@ namespace MassTransit.AmqpTransport.Configurators
         public void UseSsl()
         {
             _settings.UseSsl = true;
-            if (_settings.Port == 61616)
-                _settings.Port = 61617;
+            if (_settings.Port == 5672)
+                _settings.Port = 5671;
         }
 
         public void FailoverHosts(string[] hosts)

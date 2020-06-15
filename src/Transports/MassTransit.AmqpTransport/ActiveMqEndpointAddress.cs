@@ -54,11 +54,12 @@ namespace MassTransit.AmqpTransport
 
             switch (scheme)
             {
-                case ActiveMqHostAddress.ActiveMqScheme:
+                case ActiveMqHostAddress.AmqpScheme:
+                case ActiveMqHostAddress.AmqpsScheme:
                     Scheme = address.Scheme;
                     Host = address.Host;
                     Port = address.IsDefaultPort
-                        ? 61616
+                        ? 5672
                         : address.Port;
 
                     address.ParseHostPathAndEntityName(out VirtualHost, out Name);

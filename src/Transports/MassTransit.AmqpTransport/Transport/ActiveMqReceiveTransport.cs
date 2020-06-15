@@ -40,7 +40,8 @@
         void IProbeSite.Probe(ProbeContext context)
         {
             var scope = context.CreateScope("transport");
-            scope.Add("type", "ActiveMQ");
+            // scope.Add("type", "ActiveMQ");
+            scope.Add("type", "AMQP");
             scope.Set(new
             {
                 _settings.EntityName,
@@ -128,7 +129,7 @@
 
         Task NotifyFaulted(Exception exception)
         {
-            LogContext.Error?.Log(exception, "ActiveMQ Connect Failed: {Host}", _hostConfiguration.Settings.ToDescription());
+            LogContext.Error?.Log(exception, "AMQP Connect Failed: {Host}", _hostConfiguration.Settings.ToDescription());
 
             return _context.TransportObservers.Faulted(new ReceiveTransportFaultedEvent(_inputAddress, exception));
         }

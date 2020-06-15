@@ -13,25 +13,25 @@ namespace Sample.MassTransit.AmqpTransport
 {
     class Program
     {
-        //const string Scheme = "amqps";
-        //const string TestBrokerHost = "b-265bcc9b-dd45-4355-bfdc-098afa1af2fa-1.mq.ap-southeast-1.amazonaws.com";
-        //const string TestUsername = "mqadmin";
-        //const string TestPassword = "Maado7jRx12@";
-        //const int Port = 5671;
-
-        const string Scheme = "amqp";
-        const string TestBrokerHost = "localhost";
+        const string Scheme = "amqps";
+        const string TestBrokerHost = "x.mq.ap-southeast-1.amazonaws.com";
         const string TestUsername = "admin";
-        const string TestPassword = "admin";
-        const int Port = 5672;
+        const string TestPassword = "pwd";
+        const int Port = 5671;
+
+        //const string Scheme = "amqp";
+        //const string TestBrokerHost = "localhost";
+        //const string TestUsername = "admin";
+        //const string TestPassword = "admin";
+        //const int Port = 5672;
 
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
 
-            // Should_succeed_and_connect_when_properly_configured().GetAwaiter().GetResult();
-            // Should_do_a_bunch_of_requests_and_responses().GetAwaiter().GetResult();
-            Should_connect_locally().GetAwaiter().GetResult();
+            Should_succeed_and_connect_when_properly_configured().GetAwaiter().GetResult();
+            Should_do_a_bunch_of_requests_and_responses().GetAwaiter().GetResult();
+            // Should_connect_locally().GetAwaiter().GetResult();
 
             //var address = GetAddress(Scheme, TestBrokerHost, Port);
             //string queue = "input_queue";
@@ -50,7 +50,7 @@ namespace Sample.MassTransit.AmqpTransport
 
             var busControl = Bus.Factory.CreateUsingActiveMq(cfg =>
             {
-                var host = cfg.Host(TestBrokerHost, Port, h =>
+                cfg.Host(TestBrokerHost, Port, h =>
                 {
                     h.Username(TestUsername);
                     h.Password(TestPassword);
@@ -83,7 +83,7 @@ namespace Sample.MassTransit.AmqpTransport
 
             var sendEndpoint = await busControl.GetSendEndpoint(sendAddress);
 
-            await sendEndpoint.Send(new PingMessage());
+            await sendEndpoint.Send(new PingMessage(Guid.NewGuid()));
 
             await received.Task.OrTimeout(TimeSpan.FromSeconds(5));
 
@@ -94,7 +94,7 @@ namespace Sample.MassTransit.AmqpTransport
         {
             var bus = Bus.Factory.CreateUsingActiveMq(sbc =>
             {
-                var host = sbc.Host(TestBrokerHost, Port, h =>
+                sbc.Host(TestBrokerHost, Port, h =>
                 {
                     h.Username(TestUsername);
                     h.Password(TestPassword);
@@ -103,17 +103,21 @@ namespace Sample.MassTransit.AmqpTransport
                 });
 
                 sbc.ReceiveEndpoint("input_queue", e =>
-                {
-                    e.Handler<PingMessage>(async context => await context.RespondAsync(new PongMessage(context.Message.CorrelationId)));
+                {                    
+                    e.Handler<PingMessage>(async context =>
+                    {
+                        Console.WriteLine("PingHandler received: " + context.Message.CorrelationId);
+                        await context.RespondAsync(new PongMessage(context.Message.CorrelationId));
+                    });
                 });
             });
 
             await bus.StartAsync();
             try
             {
-                for (var i = 0; i < 10; i = i + 1)
+                for (var i = 0; i < 1000; i = i + 1)
                 {
-                    var result = await bus.Request<PingMessage, PongMessage>(new PingMessage());
+                    var result = await bus.Request<PingMessage, PongMessage>(new PingMessage(Guid.NewGuid()));
                 }
             }
             finally
