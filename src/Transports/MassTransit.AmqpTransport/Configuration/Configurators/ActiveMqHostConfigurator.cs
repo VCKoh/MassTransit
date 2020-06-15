@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Configurators
+namespace MassTransit.ActiveMqTransport.Configurators
 {
     using System;
     using System.Collections.Generic;
@@ -13,8 +13,7 @@ namespace MassTransit.AmqpTransport.Configurators
         {
             _settings = new ConfigurationHostSettings(address);
 
-            if (_settings.Port == 5671
-                || _settings.Host.EndsWith("amazonaws.com", StringComparison.OrdinalIgnoreCase))
+            if (_settings.Port == 61617 || _settings.Host.EndsWith("amazonaws.com", StringComparison.OrdinalIgnoreCase))
                 UseSsl();
         }
 
@@ -33,8 +32,8 @@ namespace MassTransit.AmqpTransport.Configurators
         public void UseSsl()
         {
             _settings.UseSsl = true;
-            if (_settings.Port == 5672)
-                _settings.Port = 5671;
+            if (_settings.Port == 61616)
+                _settings.Port = 61617;
         }
 
         public void FailoverHosts(string[] hosts)
@@ -46,6 +45,21 @@ namespace MassTransit.AmqpTransport.Configurators
         {
             foreach (KeyValuePair<string, string> option in options)
                 _settings.TransportOptions[option.Key] = option.Value;
+        }
+
+        public void EnableOptimizeAcknowledge()
+        {
+            _settings.TransportOptions["jms.optimizeAcknowledge"] = "true";
+        }
+
+        public void SetPrefetchPolicy(int limit)
+        {
+            _settings.TransportOptions["jms.prefetchPolicy.all"] = limit.ToString();
+        }
+
+        public void SetQueuePrefetchPolicy(int limit)
+        {
+            _settings.TransportOptions["jms.prefetchPolicy.queuePrefetch"] = limit.ToString();
         }
     }
 }

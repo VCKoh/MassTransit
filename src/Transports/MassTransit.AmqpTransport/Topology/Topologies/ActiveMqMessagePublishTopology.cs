@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Topology.Topologies
+namespace MassTransit.ActiveMqTransport.Topology.Topologies
 {
     using System;
     using System.Collections.Generic;
@@ -16,9 +16,9 @@ namespace MassTransit.AmqpTransport.Topology.Topologies
         IActiveMqMessagePublishTopologyConfigurator<TMessage>
         where TMessage : class
     {
-        readonly TopicConfigurator _topic;
         readonly IList<IActiveMqMessagePublishTopology> _implementedMessageTypes;
         readonly IMessageTopology<TMessage> _messageTopology;
+        readonly TopicConfigurator _topic;
 
         public ActiveMqMessagePublishTopology(IMessageTopology<TMessage> messageTopology)
         {

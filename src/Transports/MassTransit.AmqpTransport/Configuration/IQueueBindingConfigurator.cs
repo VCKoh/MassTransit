@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport
+namespace MassTransit.ActiveMqTransport
 {
     public interface IQueueBindingConfigurator :
         IQueueConfigurator

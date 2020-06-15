@@ -1,8 +1,9 @@
-﻿namespace MassTransit.AmqpTransport.Specifications
+﻿namespace MassTransit.ActiveMqTransport.Specifications
 {
     using System.Collections.Generic;
     using GreenPipes;
     using Pipeline;
+
 
     public class ActiveMqMessageSchedulerSpecification :
         IPipeSpecification<ConsumeContext>

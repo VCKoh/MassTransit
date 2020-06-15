@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Contexts
+﻿namespace MassTransit.ActiveMqTransport.Contexts
 {
     using Context;
     using Topology.Builders;

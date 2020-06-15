@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Contexts
+﻿namespace MassTransit.ActiveMqTransport.Contexts
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +8,9 @@
 
     public static class TransportHeaderExtensions
     {
+        static readonly DateTimeOffsetTypeConverter _dateTimeOffsetConverter = new DateTimeOffsetTypeConverter();
+        static readonly DateTimeTypeConverter _dateTimeConverter = new DateTimeTypeConverter();
+
         public static void SetHeaders(this IPrimitiveMap dictionary, SendHeaders headers)
         {
             foreach (KeyValuePair<string, object> header in headers.GetAll())
@@ -54,8 +57,5 @@
                 }
             }
         }
-
-        static readonly DateTimeOffsetTypeConverter _dateTimeOffsetConverter = new DateTimeOffsetTypeConverter();
-        static readonly DateTimeTypeConverter _dateTimeConverter = new DateTimeTypeConverter();
     }
 }

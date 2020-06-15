@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Topology.Builders
+namespace MassTransit.ActiveMqTransport.Topology.Builders
 {
     using System.Threading;
     using Entities;
@@ -7,10 +7,10 @@ namespace MassTransit.AmqpTransport.Topology.Builders
 
     public abstract class BrokerTopologyBuilder
     {
-        long _nextId;
         protected readonly NamedEntityCollection<ConsumerEntity, ConsumerHandle> Consumers;
-        protected readonly NamedEntityCollection<TopicEntity, TopicHandle> Topics;
         protected readonly NamedEntityCollection<QueueEntity, QueueHandle> Queues;
+        protected readonly NamedEntityCollection<TopicEntity, TopicHandle> Topics;
+        long _nextId;
 
         protected BrokerTopologyBuilder()
         {

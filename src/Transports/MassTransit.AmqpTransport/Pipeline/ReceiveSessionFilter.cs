@@ -1,7 +1,6 @@
-namespace MassTransit.AmqpTransport.Pipeline
+namespace MassTransit.ActiveMqTransport.Pipeline
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using Contexts;
     using GreenPipes;
@@ -13,13 +12,11 @@ namespace MassTransit.AmqpTransport.Pipeline
     public class ReceiveSessionFilter :
         IFilter<ConnectionContext>
     {
-        readonly IActiveMqHost _host;
         readonly IPipe<SessionContext> _pipe;
 
-        public ReceiveSessionFilter(IPipe<SessionContext> pipe, IActiveMqHost host)
+        public ReceiveSessionFilter(IPipe<SessionContext> pipe)
         {
             _pipe = pipe;
-            _host = host;
         }
 
         void IProbeSite.Probe(ProbeContext context)
@@ -38,7 +35,7 @@ namespace MassTransit.AmqpTransport.Pipeline
             void HandleException(Exception exception)
             {
             #pragma warning disable 4014
-                sessionContext.DisposeAsync(CancellationToken.None);
+                sessionContext.DisposeAsync();
             #pragma warning restore 4014
             }
 
@@ -52,7 +49,7 @@ namespace MassTransit.AmqpTransport.Pipeline
             {
                 context.Connection.ExceptionListener -= HandleException;
 
-                await sessionContext.DisposeAsync(CancellationToken.None).ConfigureAwait(false);
+                await sessionContext.DisposeAsync().ConfigureAwait(false);
             }
 
             await next.Send(context).ConfigureAwait(false);

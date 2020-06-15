@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport
+﻿namespace MassTransit.ActiveMqTransport
 {
     using System.Collections.Generic;
 
@@ -30,5 +30,13 @@
         /// </summary>
         /// <param name="options"></param>
         void TransportOptions(IEnumerable<KeyValuePair<string, string>> options);
+
+        /// <summary>
+        /// </summary>
+        void EnableOptimizeAcknowledge();
+
+        void SetPrefetchPolicy(int limit);
+
+        void SetQueuePrefetchPolicy(int limit);
     }
 }

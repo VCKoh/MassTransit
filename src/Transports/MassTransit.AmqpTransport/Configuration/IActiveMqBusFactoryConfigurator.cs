@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport
+﻿namespace MassTransit.ActiveMqTransport
 {
     using System;
     using Topology;
@@ -6,17 +6,11 @@
 
     public interface IActiveMqBusFactoryConfigurator :
         IBusFactoryConfigurator<IActiveMqReceiveEndpointConfigurator>,
-        IReceiveConfigurator<IActiveMqHost, IActiveMqReceiveEndpointConfigurator>,
         IQueueEndpointConfigurator
     {
         new IActiveMqSendTopologyConfigurator SendTopology { get; }
 
         new IActiveMqPublishTopologyConfigurator PublishTopology { get; }
-
-        /// <summary>
-        /// Set to true if the topology should be deployed only
-        /// </summary>
-        bool DeployTopologyOnly { set; }
 
         /// <summary>
         /// Configure the send topology of the message type
@@ -40,6 +34,6 @@
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        IActiveMqHost Host(ActiveMqHostSettings settings);
+        void Host(ActiveMqHostSettings settings);
     }
 }

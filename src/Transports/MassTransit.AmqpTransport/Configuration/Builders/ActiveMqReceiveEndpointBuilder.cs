@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Builders
+﻿namespace MassTransit.ActiveMqTransport.Builders
 {
     using Configuration;
     using Contexts;
@@ -14,13 +14,13 @@
     public class ActiveMqReceiveEndpointBuilder :
         ReceiveEndpointBuilder
     {
-        readonly IActiveMqHostControl _host;
         readonly IActiveMqReceiveEndpointConfiguration _configuration;
+        readonly IActiveMqHostConfiguration _hostConfiguration;
 
-        public ActiveMqReceiveEndpointBuilder(IActiveMqHostControl host, IActiveMqReceiveEndpointConfiguration configuration)
+        public ActiveMqReceiveEndpointBuilder(IActiveMqHostConfiguration hostConfiguration, IActiveMqReceiveEndpointConfiguration configuration)
             : base(configuration)
         {
-            _host = host;
+            _hostConfiguration = hostConfiguration;
             _configuration = configuration;
         }
 
@@ -40,15 +40,16 @@
         {
             var brokerTopology = BuildTopology(_configuration.Settings);
 
-            IDeadLetterTransport deadLetterTransport = CreateDeadLetterTransport();
-            IErrorTransport errorTransport = CreateErrorTransport();
+            var deadLetterTransport = CreateDeadLetterTransport();
+            var errorTransport = CreateErrorTransport();
 
-            var receiveEndpointContext = new ActiveMqConsumerReceiveEndpointContext(_host, _configuration, brokerTopology);
+            var context = new ActiveMqConsumerReceiveEndpointContext(_hostConfiguration, _configuration, brokerTopology);
 
-            receiveEndpointContext.GetOrAddPayload(() => deadLetterTransport);
-            receiveEndpointContext.GetOrAddPayload(() => errorTransport);
+            context.GetOrAddPayload(() => deadLetterTransport);
+            context.GetOrAddPayload(() => errorTransport);
+            context.GetOrAddPayload(() => _hostConfiguration.HostTopology);
 
-            return receiveEndpointContext;
+            return context;
         }
 
         IErrorTransport CreateErrorTransport()

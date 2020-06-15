@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Pipeline
+namespace MassTransit.ActiveMqTransport.Pipeline
 {
     using System;
     using System.Linq;
@@ -18,16 +18,17 @@ namespace MassTransit.AmqpTransport.Pipeline
     /// <summary>
     /// Receives messages from ActiveMQ, pushing them to the InboundPipe of the service endpoint.
     /// </summary>
-    public sealed class ActiveMqBasicConsumer :
+    public sealed class ActiveMqConsumer :
         Supervisor,
         DeliveryMetrics
     {
+        readonly ActiveMqReceiveEndpointContext _context;
         readonly TaskCompletionSource<bool> _deliveryComplete;
-        readonly SessionContext _session;
+        readonly IReceivePipeDispatcher _dispatcher;
+        readonly ChannelExecutor _executor;
         readonly IMessageConsumer _messageConsumer;
         readonly ReceiveSettings _receiveSettings;
-        readonly ActiveMqReceiveEndpointContext _context;
-        readonly IReceivePipeDispatcher _dispatcher;
+        readonly SessionContext _session;
 
         /// <summary>
         /// The basic consumer receives messages pushed from the broker.
@@ -35,11 +36,13 @@ namespace MassTransit.AmqpTransport.Pipeline
         /// <param name="session">The model context for the consumer</param>
         /// <param name="messageConsumer"></param>
         /// <param name="context">The topology</param>
-        public ActiveMqBasicConsumer(SessionContext session, IMessageConsumer messageConsumer, ActiveMqReceiveEndpointContext context)
+        /// <param name="executor"></param>
+        public ActiveMqConsumer(SessionContext session, IMessageConsumer messageConsumer, ActiveMqReceiveEndpointContext context, ChannelExecutor executor)
         {
             _session = session;
             _messageConsumer = messageConsumer;
             _context = context;
+            _executor = executor;
 
             _receiveSettings = session.GetPayload<ReceiveSettings>();
 
@@ -53,9 +56,12 @@ namespace MassTransit.AmqpTransport.Pipeline
             SetReady();
         }
 
+        long DeliveryMetrics.DeliveryCount => _dispatcher.DispatchCount;
+        int DeliveryMetrics.ConcurrentDeliveryCount => _dispatcher.MaxConcurrentDispatchCount;
+
         void HandleMessage(IMessage message)
         {
-            Task.Run(async () =>
+            _executor.PushWithWait(async () =>
             {
                 LogContext.Current = _context.LogContext;
 
@@ -79,11 +85,8 @@ namespace MassTransit.AmqpTransport.Pipeline
                 {
                     context.Dispose();
                 }
-            });
+            }, Stopping);
         }
-
-        long DeliveryMetrics.DeliveryCount => _dispatcher.DispatchCount;
-        int DeliveryMetrics.ConcurrentDeliveryCount => _dispatcher.MaxConcurrentDispatchCount;
 
         Task HandleDeliveryComplete()
         {

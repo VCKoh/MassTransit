@@ -1,9 +1,10 @@
-﻿namespace MassTransit.AmqpTransport.Transport
+﻿namespace MassTransit.ActiveMqTransport.Transport
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Apache.NMS;
+    using Configuration;
     using Context;
     using Contexts;
     using Events;
@@ -19,15 +20,16 @@
         IReceiveTransport
     {
         readonly IPipe<ConnectionContext> _connectionPipe;
-        readonly IActiveMqHost _host;
+        readonly ActiveMqReceiveEndpointContext _context;
+        readonly IActiveMqHostConfiguration _hostConfiguration;
         readonly Uri _inputAddress;
         readonly ReceiveSettings _settings;
-        readonly ActiveMqReceiveEndpointContext _context;
 
-        public ActiveMqReceiveTransport(IActiveMqHost host, ReceiveSettings settings, IPipe<ConnectionContext> connectionPipe,
+        public ActiveMqReceiveTransport(IActiveMqHostConfiguration hostConfiguration, ReceiveSettings settings, IPipe<ConnectionContext> connectionPipe,
             ActiveMqReceiveEndpointContext context)
         {
-            _host = host;
+            _hostConfiguration = hostConfiguration;
+
             _settings = settings;
             _context = context;
             _connectionPipe = connectionPipe;
@@ -38,16 +40,16 @@
         void IProbeSite.Probe(ProbeContext context)
         {
             var scope = context.CreateScope("transport");
-            // scope.Add("type", "ActiveMQ");
-            scope.Add("type", "AMQP");
+            scope.Add("type", "ActiveMQ");
             scope.Set(new
             {
                 _settings.EntityName,
                 _settings.Durable,
                 _settings.AutoDelete,
-                _settings.PrefetchCount,
+                _settings.PrefetchCount
             });
             var topologyScope = scope.CreateScope("topology");
+
             _context.BrokerTopology.Probe(topologyScope);
         }
 
@@ -87,23 +89,23 @@
         {
             while (!IsStopping)
             {
-                await _host.ConnectionRetryPolicy.Retry(async () =>
+                await _hostConfiguration.ConnectionRetryPolicy.Retry(async () =>
                 {
                     try
                     {
-                        await _context.OnTransportStartup(_host.ConnectionContextSupervisor, Stopping).ConfigureAwait(false);
+                        await _context.OnTransportStartup(_hostConfiguration.ConnectionContextSupervisor, Stopping).ConfigureAwait(false);
                         if (IsStopping)
                             return;
 
-                        await _host.ConnectionContextSupervisor.Send(_connectionPipe, Stopped).ConfigureAwait(false);
+                        await _hostConfiguration.ConnectionContextSupervisor.Send(_connectionPipe, Stopped).ConfigureAwait(false);
                     }
                     catch (NMSConnectionException ex)
                     {
                         throw await ConvertToActiveMqConnectionException(ex, "NMSConnectionException").ConfigureAwait(false);
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
-                        throw;
+                        throw await ConvertToActiveMqConnectionException(ex, "Start Canceled").ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
@@ -117,7 +119,7 @@
         {
             LogContext.Error?.Log(ex, message);
 
-            var exception = new ActiveMqConnectException(message + _host.ConnectionContextSupervisor, ex);
+            var exception = new ActiveMqConnectException(message + _hostConfiguration.ConnectionContextSupervisor, ex);
 
             await NotifyFaulted(exception).ConfigureAwait(false);
 
@@ -126,7 +128,7 @@
 
         Task NotifyFaulted(Exception exception)
         {
-            LogContext.Error?.Log(exception, "AMQP Connect Failed: {Host}", _host.Settings.ToDescription());
+            LogContext.Error?.Log(exception, "ActiveMQ Connect Failed: {Host}", _hostConfiguration.Settings.ToDescription());
 
             return _context.TransportObservers.Faulted(new ReceiveTransportFaultedEvent(_inputAddress, exception));
         }

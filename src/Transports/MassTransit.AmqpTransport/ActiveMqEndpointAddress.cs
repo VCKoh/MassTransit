@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport
+namespace MassTransit.ActiveMqTransport
 {
     using System;
     using System.Collections.Generic;
@@ -54,12 +54,11 @@ namespace MassTransit.AmqpTransport
 
             switch (scheme)
             {
-                case ActiveMqHostAddress.AmqpScheme:
-                case ActiveMqHostAddress.AmqpsScheme:
+                case ActiveMqHostAddress.ActiveMqScheme:
                     Scheme = address.Scheme;
                     Host = address.Host;
                     Port = address.IsDefaultPort
-                        ? 5672
+                        ? 61616
                         : address.Port;
 
                     address.ParseHostPathAndEntityName(out VirtualHost, out Name);
@@ -87,24 +86,24 @@ namespace MassTransit.AmqpTransport
 
             ActiveMqEntityNameValidator.Validator.ThrowIfInvalidEntityName(Name);
 
-            foreach ((string key, string value) in address.SplitQueryString())
+            foreach (var (key, value) in address.SplitQueryString())
             {
                 switch (key)
                 {
-                    case TemporaryKey when bool.TryParse(value, out bool result):
+                    case TemporaryKey when bool.TryParse(value, out var result):
                         AutoDelete = result;
                         Durable = !result;
                         break;
 
-                    case DurableKey when bool.TryParse(value, out bool result):
+                    case DurableKey when bool.TryParse(value, out var result):
                         Durable = result;
                         break;
 
-                    case AutoDeleteKey when bool.TryParse(value, out bool result):
+                    case AutoDeleteKey when bool.TryParse(value, out var result):
                         AutoDelete = result;
                         break;
 
-                    case TypeKey when _parseConverter.TryConvert(value, out AddressType result):
+                    case TypeKey when _parseConverter.TryConvert(value, out var result):
                         Type = result;
                         break;
                 }
@@ -137,7 +136,7 @@ namespace MassTransit.AmqpTransport
 
         public ActiveMqEndpointAddress GetDelayAddress()
         {
-            string name = $"{Name}_delay";
+            var name = $"{Name}_delay";
 
             return new ActiveMqEndpointAddress(Scheme, Host, Port, VirtualHost, name, Durable, AutoDelete, Type);
         }
@@ -175,6 +174,18 @@ namespace MassTransit.AmqpTransport
         }
 
         Uri DebuggerDisplay => this;
+
+        public Uri TopicAddress
+        {
+            get
+            {
+                var builder = new UriBuilder($"topic:{Name}");
+
+                builder.Query += string.Join("&", GetQueryStringOptions());
+
+                return builder.Uri;
+            }
+        }
 
         IEnumerable<string> GetQueryStringOptions()
         {

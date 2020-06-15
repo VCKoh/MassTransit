@@ -1,6 +1,5 @@
-namespace MassTransit.AmqpTransport.Configurators
+namespace MassTransit.ActiveMqTransport.Configurators
 {
-    using AmqpTransport;
     using Conductor.Configuration.Configurators;
 
 

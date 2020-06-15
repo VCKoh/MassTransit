@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Topology.Configurators
+namespace MassTransit.ActiveMqTransport.Topology.Configurators
 {
     using System;
 

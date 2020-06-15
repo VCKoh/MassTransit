@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport
+namespace MassTransit.ActiveMqTransport
 {
     using System;
     using Apache.NMS;

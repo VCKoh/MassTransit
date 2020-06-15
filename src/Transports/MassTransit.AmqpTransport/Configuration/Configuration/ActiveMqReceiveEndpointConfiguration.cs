@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Configuration
+﻿namespace MassTransit.ActiveMqTransport.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -24,10 +24,10 @@
     {
         readonly IBuildPipeConfigurator<ConnectionContext> _connectionConfigurator;
         readonly IActiveMqEndpointConfiguration _endpointConfiguration;
+        readonly IActiveMqHostConfiguration _hostConfiguration;
         readonly Lazy<Uri> _inputAddress;
         readonly IBuildPipeConfigurator<SessionContext> _sessionConfigurator;
         readonly QueueReceiveSettings _settings;
-        readonly IActiveMqHostConfiguration _hostConfiguration;
 
         public ActiveMqReceiveEndpointConfiguration(IActiveMqHostConfiguration hostConfiguration, QueueReceiveSettings settings,
             IActiveMqEndpointConfiguration endpointConfiguration)
@@ -44,19 +44,14 @@
             _inputAddress = new Lazy<Uri>(FormatInputAddress);
         }
 
-        public bool BindMessageTopics
-        {
-            set => ConfigureConsumeTopology = value;
-        }
-
         public ReceiveSettings Settings => _settings;
         public override Uri HostAddress => _hostConfiguration.HostAddress;
         public override Uri InputAddress => _inputAddress.Value;
         IActiveMqTopologyConfiguration IActiveMqEndpointConfiguration.Topology => _endpointConfiguration.Topology;
 
-        public void Build(IActiveMqHostControl host)
+        public void Build(IHost host)
         {
-            var builder = new ActiveMqReceiveEndpointBuilder(host, this);
+            var builder = new ActiveMqReceiveEndpointBuilder(_hostConfiguration, this);
 
             ApplySpecifications(builder);
 
@@ -81,11 +76,11 @@
                 consumerAgent = consumerFilter;
             }
 
-            IFilter<ConnectionContext> sessionFilter = new ReceiveSessionFilter(_sessionConfigurator.Build(), host);
+            IFilter<ConnectionContext> sessionFilter = new ReceiveSessionFilter(_sessionConfigurator.Build());
 
             _connectionConfigurator.UseFilter(sessionFilter);
 
-            var transport = new ActiveMqReceiveTransport(host, _settings, _connectionConfigurator.Build(), receiveEndpointContext);
+            var transport = new ActiveMqReceiveTransport(_hostConfiguration, _settings, _connectionConfigurator.Build(), receiveEndpointContext);
             transport.Add(consumerAgent);
 
             var receiveEndpoint = new ReceiveEndpoint(transport, receiveEndpointContext);

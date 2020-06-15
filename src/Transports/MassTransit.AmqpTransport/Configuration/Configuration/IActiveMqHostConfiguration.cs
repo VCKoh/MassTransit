@@ -1,8 +1,11 @@
-﻿namespace MassTransit.AmqpTransport.Configuration
+﻿namespace MassTransit.ActiveMqTransport.Configuration
 {
     using System;
+    using GreenPipes;
     using MassTransit.Configuration;
+    using Topology;
     using Topology.Settings;
+    using Transport;
 
 
     public interface IActiveMqHostConfiguration :
@@ -13,12 +16,11 @@
 
         ActiveMqHostSettings Settings { get; set; }
 
-        /// <summary>
-        /// If true, only the broker topology will be deployed
-        /// </summary>
-        bool DeployTopologyOnly { get; set; }
+        IConnectionContextSupervisor ConnectionContextSupervisor { get; }
 
-        IActiveMqHost Proxy { get; }
+        IRetryPolicy ConnectionRetryPolicy { get; }
+
+        new IActiveMqHostTopology HostTopology { get; }
 
         /// <summary>
         /// Apply the endpoint definition to the receive endpoint configurator

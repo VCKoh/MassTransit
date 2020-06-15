@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Transport
+﻿namespace MassTransit.ActiveMqTransport.Transport
 {
     using System;
     using System.Threading;
@@ -11,7 +11,6 @@
     using GreenPipes.Agents;
     using GreenPipes.Internals.Extensions;
     using Policies;
-    using Topology;
     using Transports;
 
 
@@ -19,27 +18,23 @@
         IPipeContextFactory<ConnectionContext>
     {
         readonly IActiveMqHostConfiguration _configuration;
-        readonly IActiveMqHostTopology _hostTopology;
         readonly IRetryPolicy _connectionRetryPolicy;
 
-        public ConnectionContextFactory(IActiveMqHostConfiguration configuration, IActiveMqHostTopology hostTopology)
+        public ConnectionContextFactory(IActiveMqHostConfiguration configuration)
         {
             _configuration = configuration;
-            _hostTopology = hostTopology;
 
             _connectionRetryPolicy = Retry.CreatePolicy(x =>
             {
                 x.Handle<ActiveMqTransportException>();
 
-                // TODO
-                // x.Exponential(1000, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
-                x.Exponential(2, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
+                x.Exponential(1000, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(3));
             });
         }
 
         IPipeContextAgent<ConnectionContext> IPipeContextFactory<ConnectionContext>.CreateContext(ISupervisor supervisor)
         {
-            var context = Task.Run(() => CreateConnection(supervisor), supervisor.Stopped);
+            Task<ConnectionContext> context = Task.Run(() => CreateConnection(supervisor), supervisor.Stopped);
 
             IPipeContextAgent<ConnectionContext> contextHandle = supervisor.AddContext(context);
 
@@ -90,7 +85,7 @@
                     LogContext.Debug?.Log("Connected: {Host} (client-id: {ClientId}, version: {Version})", _configuration.Description,
                         connection.ClientId, connection.MetaData.NMSVersion);
 
-                    return new ActiveMqConnectionContext(connection, _configuration, _hostTopology, supervisor.Stopped);
+                    return new ActiveMqConnectionContext(connection, _configuration, supervisor.Stopped);
                 }
                 catch (OperationCanceledException)
                 {

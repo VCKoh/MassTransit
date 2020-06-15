@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Contexts
+namespace MassTransit.ActiveMqTransport.Contexts
 {
     using System;
     using System.Threading;
@@ -18,20 +18,19 @@ namespace MassTransit.AmqpTransport.Contexts
         IAsyncDisposable
     {
         readonly IConnection _connection;
-        readonly LimitedConcurrencyLevelTaskScheduler _taskScheduler;
+        readonly ChannelExecutor _executor;
 
-        public ActiveMqConnectionContext(IConnection connection, IActiveMqHostConfiguration configuration, IActiveMqHostTopology hostTopology,
-            CancellationToken cancellationToken)
+        public ActiveMqConnectionContext(IConnection connection, IActiveMqHostConfiguration hostConfiguration, CancellationToken cancellationToken)
             : base(cancellationToken)
         {
             _connection = connection;
 
-            Description = configuration.Description;
-            HostAddress = configuration.HostAddress;
+            Description = hostConfiguration.Description;
+            HostAddress = hostConfiguration.HostAddress;
 
-            Topology = hostTopology;
+            Topology = hostConfiguration.HostTopology;
 
-            _taskScheduler = new LimitedConcurrencyLevelTaskScheduler(1);
+            _executor = new ChannelExecutor(1);
         }
 
         IConnection ConnectionContext.Connection => _connection;
@@ -43,13 +42,10 @@ namespace MassTransit.AmqpTransport.Contexts
         {
             using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, cancellationToken);
 
-            var session = await Task.Factory.StartNew(() => _connection.CreateSession(AcknowledgementMode.ClientAcknowledge),
-                    tokenSource.Token, TaskCreationOptions.None, _taskScheduler).ConfigureAwait(false);
-
-            return session;
+            return await _executor.Run(() => _connection.CreateSession(AcknowledgementMode.ClientAcknowledge), tokenSource.Token).ConfigureAwait(false);
         }
 
-        Task IAsyncDisposable.DisposeAsync(CancellationToken cancellationToken)
+        public async ValueTask DisposeAsync()
         {
             TransportLogMessages.DisconnectHost(Description);
 
@@ -57,7 +53,11 @@ namespace MassTransit.AmqpTransport.Contexts
             {
                 _connection.Close();
 
+                TransportLogMessages.DisconnectedHost(Description);
+
                 _connection.Dispose();
+
+                await _executor.DisposeAsync().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -65,8 +65,6 @@ namespace MassTransit.AmqpTransport.Contexts
             }
 
             TransportLogMessages.DisconnectedHost(Description);
-
-            return TaskUtil.Completed;
         }
     }
 }

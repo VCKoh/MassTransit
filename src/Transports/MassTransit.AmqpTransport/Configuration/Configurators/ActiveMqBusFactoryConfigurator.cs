@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Configurators
+﻿namespace MassTransit.ActiveMqTransport.Configurators
 {
     using System;
     using System.Collections.Generic;
@@ -29,30 +29,6 @@
             _settings = new QueueReceiveSettings(queueName, false, true);
         }
 
-        public IBusControl CreateBus()
-        {
-            void ConfigureBusEndpoint(IActiveMqReceiveEndpointConfigurator configurator)
-            {
-                configurator.ConfigureConsumeTopology = false;
-            }
-
-            var busReceiveEndpointConfiguration = _busConfiguration.HostConfiguration
-                .CreateReceiveEndpointConfiguration(_settings, _busConfiguration.BusEndpointConfiguration, ConfigureBusEndpoint);
-
-            var builder = new ConfigurationBusBuilder(_busConfiguration, busReceiveEndpointConfiguration);
-
-            return builder.Build();
-        }
-
-        public override IEnumerable<ValidationResult> Validate()
-        {
-            foreach (var result in base.Validate())
-                yield return result;
-
-            if (string.IsNullOrWhiteSpace(_settings.EntityName))
-                yield return this.Failure("Bus", "The bus queue name must not be null or empty");
-        }
-
         public ushort PrefetchCount
         {
             set => _settings.PrefetchCount = value;
@@ -68,16 +44,9 @@
             set => _settings.AutoDelete = value;
         }
 
-        public bool DeployTopologyOnly
-        {
-            set => _busConfiguration.HostConfiguration.DeployTopologyOnly = value;
-        }
-
-        public IActiveMqHost Host(ActiveMqHostSettings settings)
+        public void Host(ActiveMqHostSettings settings)
         {
             _busConfiguration.HostConfiguration.Settings = settings;
-
-            return _busConfiguration.HostConfiguration.Proxy;
         }
 
         void IActiveMqBusFactoryConfigurator.Send<T>(Action<IActiveMqMessageSendTopologyConfigurator<T>> configureTopology)
@@ -109,12 +78,6 @@
             _hostConfiguration.ReceiveEndpoint(definition, endpointNameFormatter, configureEndpoint);
         }
 
-        public void ReceiveEndpoint(IActiveMqHost host, IEndpointDefinition definition, IEndpointNameFormatter endpointNameFormatter,
-            Action<IActiveMqReceiveEndpointConfigurator> configureEndpoint = null)
-        {
-            _hostConfiguration.ReceiveEndpoint(definition, endpointNameFormatter, configureEndpoint);
-        }
-
         public void ReceiveEndpoint(string queueName, Action<IActiveMqReceiveEndpointConfigurator> configureEndpoint)
         {
             _hostConfiguration.ReceiveEndpoint(queueName, configureEndpoint);
@@ -125,9 +88,28 @@
             _hostConfiguration.ReceiveEndpoint(queueName, configureEndpoint);
         }
 
-        public void ReceiveEndpoint(IActiveMqHost host, string queueName, Action<IActiveMqReceiveEndpointConfigurator> configureEndpoint)
+        public IBusControl CreateBus()
         {
-            _hostConfiguration.ReceiveEndpoint(queueName, configureEndpoint);
+            void ConfigureBusEndpoint(IActiveMqReceiveEndpointConfigurator configurator)
+            {
+                configurator.ConfigureConsumeTopology = false;
+            }
+
+            var busReceiveEndpointConfiguration = _busConfiguration.HostConfiguration
+                .CreateReceiveEndpointConfiguration(_settings, _busConfiguration.BusEndpointConfiguration, ConfigureBusEndpoint);
+
+            var builder = new ConfigurationBusBuilder(_busConfiguration, busReceiveEndpointConfiguration);
+
+            return builder.Build();
+        }
+
+        public override IEnumerable<ValidationResult> Validate()
+        {
+            foreach (var result in base.Validate())
+                yield return result;
+
+            if (string.IsNullOrWhiteSpace(_settings.EntityName))
+                yield return this.Failure("Bus", "The bus queue name must not be null or empty");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace MassTransit.AmqpTransport.Configuration
+﻿namespace MassTransit.ActiveMqTransport.Configuration
 {
     using MassTransit.Configuration;
     using Topology;
@@ -10,6 +10,6 @@
     {
         ReceiveSettings Settings { get; }
 
-        void Build(IActiveMqHostControl host);
+        void Build(IHost host);
     }
 }

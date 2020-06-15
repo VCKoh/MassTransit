@@ -1,4 +1,4 @@
-namespace MassTransit.AmqpTransport.Topology.Builders
+namespace MassTransit.ActiveMqTransport.Topology.Builders
 {
     using Entities;
     using GreenPipes;

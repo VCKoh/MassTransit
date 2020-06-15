@@ -1,9 +1,10 @@
-﻿namespace MassTransit.AmqpTransport.Configurators
+﻿namespace MassTransit.ActiveMqTransport.Configurators
 {
     using System;
     using GreenPipes.Configurators;
     using PipeConfigurators;
     using Specifications;
+
 
     public class ActiveMqRedeliveryConfigurationObserver :
         ScheduledRedeliveryConfigurationObserver
@@ -19,6 +20,5 @@
 
             configurator.AddPipeSpecification(redeliverySpecification);
         }
-
     }
 }
