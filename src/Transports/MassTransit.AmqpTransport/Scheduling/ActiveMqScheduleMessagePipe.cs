@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Scheduling
+﻿namespace MassTransit.AmqpTransport.Scheduling
 {
     using System;
     using System.Threading.Tasks;

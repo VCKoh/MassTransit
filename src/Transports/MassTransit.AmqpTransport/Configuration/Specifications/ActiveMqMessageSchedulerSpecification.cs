@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Specifications
+﻿namespace MassTransit.AmqpTransport.Specifications
 {
     using System.Collections.Generic;
     using GreenPipes;

@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Configurators
+namespace MassTransit.AmqpTransport.Configurators
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology.Specifications
+namespace MassTransit.AmqpTransport.Topology.Specifications
 {
     using System.Collections.Generic;
     using System.Linq;

@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Pipeline
+namespace MassTransit.AmqpTransport.Pipeline
 {
     using System;
     using System.Threading.Tasks;

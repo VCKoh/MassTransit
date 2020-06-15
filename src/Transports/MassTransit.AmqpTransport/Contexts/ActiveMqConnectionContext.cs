@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Contexts
+namespace MassTransit.AmqpTransport.Contexts
 {
     using System;
     using System.Threading;

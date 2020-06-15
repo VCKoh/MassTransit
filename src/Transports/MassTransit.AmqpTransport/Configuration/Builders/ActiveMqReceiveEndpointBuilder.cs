@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Builders
+﻿namespace MassTransit.AmqpTransport.Builders
 {
     using Configuration;
     using Contexts;

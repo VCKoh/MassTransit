@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology
+namespace MassTransit.AmqpTransport.Topology
 {
     /// <summary>
     /// During a topology build, this will determine the exchange type for a message,

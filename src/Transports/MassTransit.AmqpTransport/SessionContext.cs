@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport
+﻿namespace MassTransit.AmqpTransport
 {
     using System.Threading.Tasks;
     using Apache.NMS;

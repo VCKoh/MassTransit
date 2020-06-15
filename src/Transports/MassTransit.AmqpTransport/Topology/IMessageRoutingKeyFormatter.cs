@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Topology
+﻿namespace MassTransit.AmqpTransport.Topology
 {
     public interface IMessageRoutingKeyFormatter<in TMessage>
         where TMessage : class

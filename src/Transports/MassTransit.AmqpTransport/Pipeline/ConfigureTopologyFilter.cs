@@ -1,9 +1,9 @@
-namespace MassTransit.ActiveMqTransport.Pipeline
+namespace MassTransit.AmqpTransport.Pipeline
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Apache.NMS.ActiveMQ;
+    using Apache.NMS.AMQP;
     using Context;
     using GreenPipes;
     using Topology;
@@ -68,10 +68,11 @@ namespace MassTransit.ActiveMqTransport.Pipeline
 
                 await Task.WhenAll(_brokerTopology.Queues.Where(x => x.AutoDelete).Select(queue => Delete(context, queue))).ConfigureAwait(false);
             }
-            catch (ConnectionClosedException exception)
-            {
-                LogContext.Debug?.Log(exception, "Connection was closed, auto-delete queues/topics/consumers could not be deleted");
-            }
+            // TODO
+            //catch (ConnectionClosedException exception)
+            //{
+            //    LogContext.Debug?.Log(exception, "Connection was closed, auto-delete queues/topics/consumers could not be deleted");
+            //}
             catch (Exception exception)
             {
                 LogContext.Error?.Log(exception, "Failure removing auto-delete queues/topics");

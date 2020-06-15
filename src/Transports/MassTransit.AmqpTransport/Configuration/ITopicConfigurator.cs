@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport
+﻿namespace MassTransit.AmqpTransport
 {
     /// <summary>
     /// Configures an exchange for ActiveMQ

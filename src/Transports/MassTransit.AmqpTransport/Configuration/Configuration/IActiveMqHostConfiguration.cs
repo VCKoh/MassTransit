@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Configuration
+﻿namespace MassTransit.AmqpTransport.Configuration
 {
     using System;
     using GreenPipes;

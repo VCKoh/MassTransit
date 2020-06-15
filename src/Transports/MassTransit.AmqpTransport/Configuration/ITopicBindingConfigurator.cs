@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport
+﻿namespace MassTransit.AmqpTransport
 {
     /// <summary>
     /// Used to configure the binding of an exchange (to either a queue or another exchange)

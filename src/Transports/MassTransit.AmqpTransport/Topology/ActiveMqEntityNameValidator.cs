@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology
+namespace MassTransit.AmqpTransport.Topology
 {
     using System.Text.RegularExpressions;
     using MassTransit.Topology;

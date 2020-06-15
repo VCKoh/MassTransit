@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology
+namespace MassTransit.AmqpTransport.Topology
 {
     /// <summary>
     /// Used to select the exchange type for a published message

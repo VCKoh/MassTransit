@@ -1,4 +1,4 @@
-﻿namespace MassTransit.ActiveMqTransport.Topology.Topologies
+﻿namespace MassTransit.AmqpTransport.Topology.Topologies
 {
     using MassTransit.Topology.Topologies;
 

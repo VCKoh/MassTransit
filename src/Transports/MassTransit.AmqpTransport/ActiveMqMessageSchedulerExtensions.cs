@@ -1,6 +1,6 @@
 namespace MassTransit
 {
-    using ActiveMqTransport.Scheduling;
+    using AmqpTransport.Scheduling;
     using Registration;
     using Scheduling;
 

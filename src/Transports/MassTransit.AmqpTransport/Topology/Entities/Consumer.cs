@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology.Entities
+namespace MassTransit.AmqpTransport.Topology.Entities
 {
     /// <summary>
     /// The exchange to queue binding details to declare the binding to ActiveMQ

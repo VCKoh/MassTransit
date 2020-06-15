@@ -1,4 +1,4 @@
-namespace MassTransit.ActiveMqTransport.Topology.Configurators
+namespace MassTransit.AmqpTransport.Topology.Configurators
 {
     using Entities;
 
