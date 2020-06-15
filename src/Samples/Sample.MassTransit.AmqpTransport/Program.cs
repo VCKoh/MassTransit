@@ -48,7 +48,7 @@ namespace Sample.MassTransit.AmqpTransport
 
             Uri sendAddress = null;
 
-            var busControl = Bus.Factory.CreateUsingActiveMq(cfg =>
+            var busControl = Bus.Factory.CreateUsingAmqp(cfg =>
             {
                 cfg.Host(TestBrokerHost, Port, h =>
                 {
@@ -92,7 +92,7 @@ namespace Sample.MassTransit.AmqpTransport
 
         public static async Task Should_do_a_bunch_of_requests_and_responses()
         {
-            var bus = Bus.Factory.CreateUsingActiveMq(sbc =>
+            var bus = Bus.Factory.CreateUsingAmqp(sbc =>
             {
                 sbc.Host(TestBrokerHost, Port, h =>
                 {
@@ -128,7 +128,7 @@ namespace Sample.MassTransit.AmqpTransport
 
         public static async Task Should_connect_locally()
         {
-            var busControl = Bus.Factory.CreateUsingActiveMq(cfg =>
+            var busControl = Bus.Factory.CreateUsingAmqp(cfg =>
             {
                 cfg.Host(TestBrokerHost, Port, h =>
                 {

@@ -7,13 +7,13 @@
     using MassTransit.Testing;
 
 
-    public class ActiveMqTestHarness :
+    public class AmqpTestHarness :
         BusTestHarness
     {
         Uri _hostAddress;
         Uri _inputQueueAddress;
 
-        public ActiveMqTestHarness(string inputQueueName = null)
+        public AmqpTestHarness(string inputQueueName = null)
         {
             Username = "admin";
             Password = "admin";
@@ -91,7 +91,7 @@
 
         protected override IBusControl CreateBus()
         {
-            var busControl = MassTransit.Bus.Factory.CreateUsingActiveMq(x =>
+            var busControl = MassTransit.Bus.Factory.CreateUsingAmqp(x =>
             {
                 ConfigureHost(x);
 
